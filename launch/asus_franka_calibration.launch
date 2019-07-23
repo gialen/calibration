@@ -1,6 +1,6 @@
 <launch>
 
-	<arg name="calibration_name" default="asus_head_vito_calib"/>
+	<arg name="calibration_name" default="asus_head_franka_calib"/>
 	<arg name="use_left_arm" default="false"/>
 	<arg name="asus" default="asus1"/>
 
@@ -14,8 +14,18 @@
 	<arg name="cam_info_topic" default="/camera/depth_registered/camera_info" />
 	<arg name="output_frame" default="/camera_rgb_optical_frame" />
 
-	<node name="ar_track_alvar" pkg="ar_track_alvar" type="individualMarkers" respawn="false" output="screen" args="$(arg marker_size) $(arg max_new_marker_error) $(arg max_track_error) $(arg cam_image_topic) $(arg cam_info_topic) $(arg output_frame)" />
+	<node name="ar_track_alvar" pkg="ar_track_alvar" type="individualMarkers" respawn="false" output="screen">
+		<param name="marker_size"           type="double" value="$(arg marker_size)" />
+		<param name="max_new_marker_error"  type="double" value="$(arg max_new_marker_error)" />
+		<param name="max_track_error"       type="double" value="$(arg max_track_error)" />
+		<param name="output_frame"          type="string" value="$(arg output_frame)" />
 
+		<remap from="camera_image"  to="$(arg cam_image_topic)" />
+		<remap from="camera_info"   to="$(arg cam_info_topic)" />
+	</node>
+
+	<!-- <node name="ar_track_alvar" pkg="ar_track_alvar" type="individualMarkers" respawn="false" output="screen" args="$(arg marker_size) $(arg max_new_marker_error) $(arg max_track_error) $(arg cam_image_topic) $(arg cam_info_topic) $(arg output_frame)" />
+ -->
 	<!-- launch the rgbd sensor, in this case using openni2 for the asus -->
 	<include file="$(find openni2_launch)/launch/openni2.launch">
 		<arg name="depth_registration" value="true" />
@@ -26,8 +36,8 @@
 
 	<!-- LOAD ROBOT AND CALIBRATION SETUP -->
 
-	<!-- depends on your configuration, this is for vito -->
-<!-- 	<group if="$(arg use_left_arm)">
+	<!-- depends on your configuration, this is for vito 
+	<group if="$(arg use_left_arm)">
 		<include file="$(find vito_description)/launch/display_for_calibration.launch">
 		    <arg name="left_arm_enabled" default="true"/>
    			<arg name="right_arm_enabled" default="false"/>
@@ -38,7 +48,7 @@
 			<param name="calibrator_frame" value="calibrator_20"/>
 			<param name="calibration_name" value="$(arg calibration_name)"/>
 			<node name="right_arm_asus_calibrator" pkg="calibration" type="simple_calibrator" respawn="true" output="screen"/>
-	</group> -->
+	</group>
 
 	<group unless="$(arg use_left_arm)">
 		<include file="$(find vito_description)/launch/display_for_calibration.launch">
@@ -51,6 +61,14 @@
 			<param name="calibrator_frame" value="calibrator_10"/>
 			<param name="calibration_name" value="$(arg calibration_name)"/>
 			<node name="left_arm_asus_calibrator" pkg="calibration" type="average_calibrator" respawn="true" output="screen"/>
-	</group>
+	</group> -->
+		<include file="$(find franka_visualization)/launch/franka_visualization_for_calibration.launch">
+		</include>
+			<param name="frame_id" value="camera_rgb_optical_frame" />
+			<param name="ar_marker_frame" value="ar_marker_10" />
+			<param name="child_frame_id" value="world" />
+			<param name="calibrator_frame" value="calibrator_10"/>
+			<param name="calibration_name" value="$(arg calibration_name)"/>
+			<node name="left_arm_asus_calibrator" pkg="calibration" type="average_calibrator" respawn="true" output="screen"/>
 
 </launch>

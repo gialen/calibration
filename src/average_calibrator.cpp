@@ -24,6 +24,7 @@ class AverageCalibrator
         // node handles
         ros::NodeHandle nh_;
         ros::NodeHandle priv_nh_;
+        
 
         // services
         ros::ServiceServer srv_calibrate_;
@@ -81,7 +82,7 @@ class AverageCalibrator
             nh_.param<std::string>("calibrator_frame", calibrator_frame_, "/calibrator");
             nh_.param<std::string>("calibration_name", calibration_name_, "asus_phase_space");
             
-            samples_ = 10;
+            samples_ = 50;
             kept_translation_x_first_.resize(samples_, 0);
             kept_translation_y_first_.resize(samples_, 0);
             kept_translation_z_first_.resize(samples_, 0);
@@ -159,7 +160,7 @@ void AverageCalibrator::recordTf()
           first_transformation.getRotation().getY(), first_transformation.getRotation().getZ()));
     kept_rot_axis_x_first_.push_back(first_ax.axis()[0]);     
     kept_rot_axis_y_first_.push_back(first_ax.axis()[1]);
-    kept_rot_axis_z_first_.push_back(first_ax.axis()[1]);
+    kept_rot_axis_z_first_.push_back(first_ax.axis()[2]);
     kept_rot_angle_first_.push_back(first_ax.angle());
     kept_translation_x_second_.push_back(second_transformation.getOrigin()[0]);
     kept_translation_y_second_.push_back(second_transformation.getOrigin()[1]);
@@ -270,11 +271,11 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
 
     calibration::AverageCalibrator node(nh);
-    ros::Rate rate(100.0); //go at 100Hz
+    ros::Rate rate(10.0); //go at 100Hz
   
     //wait a bit to let tf start publishing
-    boost::this_thread::sleep (boost::posix_time::microseconds (3000000));
-
+    //boost::this_thread::sleep (boost::posix_time::microseconds (3000000));
+    usleep(3000000);
     while(nh.ok())
     {
       node.recordTf();

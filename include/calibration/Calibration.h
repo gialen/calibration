@@ -6,6 +6,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 //unsupported
+#include <Eigen/Sparse>
 #include <unsupported/Eigen/NonLinearOptimization>
 #include <unsupported/Eigen/NumericalDiff>
 #include <unsupported/Eigen/KroneckerProduct>
